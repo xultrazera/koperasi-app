@@ -44,14 +44,14 @@ export default function Home() {
   // TAMPILAN DASHBOARD (SETELAH LOGIN)
   if (dataNasabah) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", paddingTop: "50px" }}>
+      <div style={{ display: "flex", justifyContent: "center", paddingTop: "50px", backgroundColor: "#0f172a", minHeight: "100vh" }}>
         <div style={styleBox}>
           <h2>Halo, {dataNasabah.name}</h2>
           <p>Total Tabungan Anda:</p>
           <h1 style={{ color: "#3b82f6" }}>Rp {dataNasabah.tabungan.toLocaleString()}</h1>
-          <p>Total Hutang:</p>
+          <p>Sisa Hutang:</p>
           <h2 style={{ color: "#ef4444" }}>Rp {dataNasabah.hutang.toLocaleString()}</h2>
-          <button onClick={() => setDataNasabah(null)} style={{ marginTop: "20px", padding: "10px 20px", cursor: "pointer" }}>Keluar</button>
+          <button onClick={() => setDataNasabah(null)} style={{ marginTop: "20px", padding: "10px 20px", cursor: "pointer", borderRadius: "5px", border: "none" }}>Keluar</button>
         </div>
       </div>
     );
@@ -64,8 +64,8 @@ export default function Home() {
         <h3>KOPERASI SIMPAN PINJAM</h3>
         <p style={{ fontSize: "0.8em", color: "#60a5fa" }}>SERBA USAHA</p>
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "20px" }}>
-          <input id="username" type="text" placeholder="USERNAME" style={{ padding: "10px", borderRadius: "5px" }} required />
-          <input id="password" type="password" placeholder="KATA SANDI" style={{ padding: "10px", borderRadius: "5px" }} required />
+          <input id="username" type="text" placeholder="USERNAME" style={{ padding: "10px", borderRadius: "5px", border: "none" }} required />
+          <input id="password" type="password" placeholder="KATA SANDI" style={{ padding: "10px", borderRadius: "5px", border: "none" }} required />
           <button id="btn-masuk" type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#3b82f6", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
             {loading ? "MEMERIKSA..." : "MASUK"}
           </button>
