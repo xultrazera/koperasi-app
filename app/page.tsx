@@ -31,23 +31,32 @@ export default function Home() {
     setLoading(false);
   };
 
-  const styleBox = {
-    backgroundColor: "#1c2430",
-    padding: "30px",
-    borderRadius: "15px",
-    color: "white",
-    width: "300px",
-    textAlign: "center" as const,
-    boxShadow: "0 4px 15px rgba(0,0,0,0.3)"
+  // FUNGSI LUPA PASSWORD
+  const handleLupaPassword = async () => {
+    const username = (document.getElementById("username") as HTMLInputElement).value;
+    if (!username) { alert("Masukkan Username dulu untuk cek password!"); return; }
+    
+    const { data, error } = await supabase
+      .from("nasabah")
+      .select("password")
+      .eq("username", username)
+      .single();
+
+    if (error || !data) {
+      alert("Username tidak ditemukan.");
+    } else {
+      alert("Password Anda adalah: " + data.password);
+    }
   };
 
-  // TAMPILAN DASHBOARD (SETELAH LOGIN)
+  const styleBox = { backgroundColor: "#1c2430", padding: "30px", borderRadius: "15px", color: "white", width: "300px", textAlign: "center" as const, boxShadow: "0 4px 15px rgba(0,0,0,0.3)" };
+
   if (dataNasabah) {
     return (
       <div style={{ display: "flex", justifyContent: "center", paddingTop: "50px", backgroundColor: "#0f172a", minHeight: "100vh" }}>
         <div style={styleBox}>
           <h2>Halo, {dataNasabah.name}</h2>
-          <p>Total Tabungan Anda:</p>
+          <p>Total Tabungan:</p>
           <h1 style={{ color: "#3b82f6" }}>Rp {dataNasabah.tabungan.toLocaleString()}</h1>
           <p>Sisa Hutang:</p>
           <h2 style={{ color: "#ef4444" }}>Rp {dataNasabah.hutang.toLocaleString()}</h2>
@@ -57,17 +66,18 @@ export default function Home() {
     );
   }
 
-  // TAMPILAN LOGIN (DESAIN AWAL KAMU)
   return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: "50px", backgroundColor: "#0f172a", minHeight: "100vh" }}>
       <div style={styleBox}>
         <h3>KOPERASI SIMPAN PINJAM</h3>
-        <p style={{ fontSize: "0.8em", color: "#60a5fa" }}>SERBA USAHA</p>
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "20px" }}>
           <input id="username" type="text" placeholder="USERNAME" style={{ padding: "10px", borderRadius: "5px", border: "none" }} required />
           <input id="password" type="password" placeholder="KATA SANDI" style={{ padding: "10px", borderRadius: "5px", border: "none" }} required />
-          <button id="btn-masuk" type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#3b82f6", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
+          <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#3b82f6", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
             {loading ? "MEMERIKSA..." : "MASUK"}
+          </button>
+          <button type="button" onClick={handleLupaPassword} style={{ background: "none", border: "none", color: "#60a5fa", cursor: "pointer", fontSize: "0.8em" }}>
+            Lupa Password?
           </button>
         </form>
       </div>
