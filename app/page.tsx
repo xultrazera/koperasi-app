@@ -1,114 +1,80 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// MASUKKAN KUNCI SUPABASE LANGSUNG DI SINI AGAR VERCEL PASTI BISA MEMBACA DATABASE
-const supabaseUrl = "KOPAS_URL_SUPABASE_MU_DISINI";
-const supabaseAnonKey = "KOPAS_ANON_KEY_MU_DISINI";
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export default function Home() {
-  const [usernameInput, setUsernameInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
-  const [pesanError, setPesanError] = useState("");
-  const [sedangLoading, setSedangLoading] = useState(false);
+  // CONFIG DATABASE
+  const supabaseUrl = "ISI_URL_SUPABASE_MU";
+  const supabaseAnonKey = "ISI_ANON_KEY_MU";
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPesanError("");
-    setSedangLoading(true);
+  const jalankanLogin = async (event: any) => {
+    event.preventDefault();
+    
+    const usernameInput = (document.getElementById("txt_user") as HTMLInputElement).value;
+    const passwordInput = (document.getElementById("txt_pass") as HTMLInputElement).value;
+    const infoError = document.getElementById("info_error");
+
+    if (!infoError) return;
+    infoError.innerText = "";
 
     if (!usernameInput || !passwordInput) {
-      setPesanError("Username dan Kata Sandi wajib diisi!");
-      setSedangLoading(false);
+      infoError.innerText = "Username dan Kata Sandi wajib diisi!";
       return;
     }
 
     try {
-      // Mengambil data nasabah dari supabase
-      const { data: nasabah, error } = await supabase
-        .from("nasabah")
-        .select("*")
-        .eq("username", usernameInput);
+      // Ambil data langsung lewat API Supabase tanpa library jembatan
+      const respon = await fetch(`${supabaseUrl}/rest/v1/nasabah?username=eq.${usernameInput}`, {
+        method: "GET",
+        headers: {
+          "apikey": supabaseAnonKey,
+          "Authorization": `Bearer ${supabaseAnonKey}`,
+          "Content-Type": "application/json"
+        }
+      });
 
-      if (error || !nasabah || nasabah.length === 0) {
-        setPesanError("Username tidak ditemukan!");
+      const dataNasabah = await respon.json();
+
+      if (!dataNasabah || dataNasabah.length === 0) {
+        infoError.innerText = "Username tidak ditemukan!";
       } else {
-        const user = nasabah[0];
+        const user = dataNasabah[0];
         if (user.password !== passwordInput) {
-          setPesanError("Kata sandi yang Anda masukkan salah!");
+          infoError.innerText = "Kata sandi yang Anda masukkan salah!";
         } else {
-          // POP UP BERHASIL LOGIN
           alert(`Selamat Datang, ${user.nama}!\nTotal Tabungan Anda: Rp ${Number(user.tabungan).toLocaleString()}`);
         }
       }
     } catch (err) {
-      setPesanError("Terjadi gangguan koneksi ke database.");
-    } finally {
-      setSedangLoading(false);
+      infoError.innerText = "Gagal terhubung ke database Supabase.";
     }
   };
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
 
-      <div className="flex min-h-screen items-center justify-center bg-gray-900 px-4 font-sans">
+      <div className="flex min-h-screen items-center justify-center bg-gray-900 px-4">
         <div className="w-full max-w-md rounded-2xl bg-gray-800 p-8 shadow-2xl border border-gray-700">
           
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold tracking-wide text-white uppercase">
-              Koperasi Simpan Pinjam
-            </h1>
-            <p className="text-sm font-medium text-blue-400 tracking-widest uppercase mt-1">
-              Serba Usaha
-            </p>
+            <h1 className="text-2xl font-bold tracking-wide text-white uppercase">Koperasi Simpan Pinjam</h1>
+            <p className="text-sm font-medium text-blue-400 tracking-widest uppercase mt-1">Serba Usaha</p>
           </div>
 
-          {pesanError && (
-            <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-center text-sm font-medium text-red-400">
-              {pesanError}
-            </div>
-          )}
+          <div id="info_error" className="mb-4 rounded-xl bg-red-500/10 text-center text-sm font-medium text-red-400"></div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={jalankanLogin} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                Username
-              </label>
-              <input 
-                type="text"
-                placeholder="Masukkan Username" 
-                value={usernameInput}
-                onChange={(e) => setUsernameInput(e.target.value)}
-                className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500 transition-all"
-              />
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+              <input id="txt_user" type="text" placeholder="Masukkan Username" className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500" />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                Kata Sandi
-              </label>
-              <input 
-                type="password"
-                placeholder="Masukkan Kata Sandi" 
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500 transition-all"
-              />
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Kata Sandi</label>
+              <input id="txt_pass" type="password" placeholder="Masukkan Kata Sandi" className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500" />
             </div>
 
-            <button 
-              type="submit"
-              disabled={sedangLoading}
-              className="w-full mt-2 rounded-xl bg-blue-600 p-3 text-sm font-bold text-white shadow-lg hover:bg-blue-500 active:scale-[0.98] transition-all uppercase tracking-wider disabled:opacity-50"
-            >
-              {sedangLoading ? "Memeriksa..." : "Masuk"}
+            <button type="submit" className="w-full mt-2 rounded-xl bg-blue-600 p-3 text-sm font-bold text-white shadow-lg hover:bg-blue-500 active:scale-[0.98] uppercase tracking-wider">
+              Masuk
             </button>
           </form>
 
