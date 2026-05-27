@@ -1,6 +1,54 @@
-import Head from "next/head";
+import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+// 1. Inisialisasi Koneksi ke Database Supabase Anda
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
+  // State untuk menyimpan inputan user
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [pesanError, setPesanError] = useState("");
+  const [sedangLoading, setSedangLoading] = useState(false);
+
+  // Fungsi penangan ketika tombol MASUK diklik
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPesanError("");
+    setSedangLoading(true);
+
+    if (!usernameInput || !passwordInput) {
+      setPesanError("Username dan Kata Sandi wajib diisi!");
+      setSedangLoading(false);
+      return;
+    }
+
+    try {
+      // Mencari data di tabel 'nasabah' yang cocok dengan inputan user
+      const { data: nasabah, error } = await supabase
+        .from("nasabah")
+        .select("*")
+        .eq("username", usernameInput)
+        .single();
+
+      if (error || !nasabah) {
+        setPesanError("Username tidak ditemukan!");
+      } else if (nasabah.password !== passwordInput) {
+        setPesanError("Kata sandi yang Anda masukkan salah!");
+      } else {
+        // JIKA LOGIN BERHASIL
+        alert(`Selamat Datang, ${nasabah.nama}!\nTotal Tabungan Anda: Rp ${nasabah.tabungan.toLocaleString()}`);
+        // Di sini nantinya bisa kita arahkan untuk pindah halaman dashboard utama
+      }
+    } catch (err) {
+      setPesanError("Terjadi gangguan koneksi ke database.");
+    } finally {
+      setSedangLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Script Pengaktif Desain (CDN Tailwind) */}
@@ -13,7 +61,7 @@ export default function Home() {
         <div className="w-full max-w-md rounded-2xl bg-gray-800 p-8 shadow-2xl border border-gray-700">
           
           {/* Judul Koperasi */}
-          <div className="mb-8 text-center">
+          <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold tracking-wide text-white uppercase">
               Koperasi Simpan Pinjam
             </h1>
@@ -22,8 +70,15 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Notifikasi Pesan Kesalahan jika login gagal */}
+          {pesanError && (
+            <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-center text-sm font-medium text-red-400">
+              {pesanError}
+            </div>
+          )}
+
           {/* Form Login */}
-          <form className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
                 Username
@@ -31,6 +86,8 @@ export default function Home() {
               <input 
                 type="text"
                 placeholder="Masukkan Username" 
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
                 className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500 transition-all"
               />
             </div>
@@ -42,15 +99,18 @@ export default function Home() {
               <input 
                 type="password"
                 placeholder="Masukkan Kata Sandi" 
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
                 className="w-full rounded-xl border border-gray-600 bg-gray-700 p-3 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500 transition-all"
               />
             </div>
 
             <button 
-              type="button"
-              className="w-full mt-2 rounded-xl bg-blue-600 p-3 text-sm font-bold text-white shadow-lg hover:bg-blue-500 transition-all uppercase tracking-wider"
+              type="submit"
+              disabled={sedangLoading}
+              className="w-full mt-2 rounded-xl bg-blue-600 p-3 text-sm font-bold text-white shadow-lg hover:bg-blue-500 active:scale-[0.98] transition-all uppercase tracking-wider disabled:opacity-50"
             >
-              Masuk
+              {sedangLoading ? "Memeriksa..." : "Masuk"}
             </button>
           </form>
 
