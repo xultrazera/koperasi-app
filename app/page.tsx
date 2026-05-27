@@ -1,7 +1,9 @@
+"use client";
+
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// 1. Inisialisasi Koneksi ke Database Supabase Anda
+// Inisialisasi Koneksi ke Database Supabase Anda
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -40,7 +42,6 @@ export default function Home() {
       } else {
         // JIKA LOGIN BERHASIL
         alert(`Selamat Datang, ${nasabah.nama}!\nTotal Tabungan Anda: Rp ${nasabah.tabungan.toLocaleString()}`);
-        // Di sini nantinya bisa kita arahkan untuk pindah halaman dashboard utama
       }
     } catch (err) {
       setPesanError("Terjadi gangguan koneksi ke database.");
