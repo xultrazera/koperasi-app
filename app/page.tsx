@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// Inisialisasi Koneksi ke Database Supabase Anda
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
-  // State untuk menyimpan inputan user
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [pesanError, setPesanError] = useState("");
   const [sedangLoading, setSedangLoading] = useState(false);
 
-  // Fungsi penangan ketika tombol MASUK diklik
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setPesanError("");
@@ -28,20 +25,21 @@ export default function Home() {
     }
 
     try {
-      // Mencari data di tabel 'nasabah' yang cocok dengan inputan user
       const { data: nasabah, error } = await supabase
         .from("nasabah")
         .select("*")
         .eq("username", usernameInput)
-        .single();
+        .slice(0, 1);
 
-      if (error || !nasabah) {
+      if (error || !nasabah || nasabah.length === 0) {
         setPesanError("Username tidak ditemukan!");
-      } else if (nasabah.password !== passwordInput) {
-        setPesanError("Kata sandi yang Anda masukkan salah!");
       } else {
-        // JIKA LOGIN BERHASIL
-        alert(`Selamat Datang, ${nasabah.nama}!\nTotal Tabungan Anda: Rp ${nasabah.tabungan.toLocaleString()}`);
+        const user = nasabah[0];
+        if (user.password !== passwordInput) {
+          setPesanError("Kata sandi yang Anda masukkan salah!");
+        } else {
+          alert(`Selamat Datang, ${user.nama}!\nTotal Tabungan Anda: Rp ${Number(user.tabungan).toLocaleString()}`);
+        }
       }
     } catch (err) {
       setPesanError("Terjadi gangguan koneksi ke database.");
@@ -52,7 +50,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Script Pengaktif Desain (CDN Tailwind) */}
       <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -61,7 +58,6 @@ export default function Home() {
       <div className="flex min-h-screen items-center justify-center bg-gray-900 px-4 font-sans">
         <div className="w-full max-w-md rounded-2xl bg-gray-800 p-8 shadow-2xl border border-gray-700">
           
-          {/* Judul Koperasi */}
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold tracking-wide text-white uppercase">
               Koperasi Simpan Pinjam
@@ -71,14 +67,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Notifikasi Pesan Kesalahan jika login gagal */}
           {pesanError && (
             <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-center text-sm font-medium text-red-400">
               {pesanError}
             </div>
           )}
 
-          {/* Form Login */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
