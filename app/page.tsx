@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
@@ -38,7 +40,7 @@ export default function Home() {
           </div>
 
           <button 
-            type="submit"
+            type="button"
             className="w-full mt-2 rounded-xl bg-blue-600 p-3 text-sm font-bold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 active:scale-[0.98] transition-all uppercase tracking-wider"
           >
             Masuk
