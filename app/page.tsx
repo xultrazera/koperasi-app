@@ -2,7 +2,7 @@
 
 export default function Home() {
   // CONFIG DATABASE - MASUKKAN DATA ASLI KAMU DI SINI
-  const supabaseUrl = "https://moorscjicysjgfdabpxm.supabase.com";
+  const supabaseUrl = "https://moorscjicysjgfdabpxm.supabase.co";
   const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vb3JzY2ppY3lzamdmZGFicHhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjAyNDgsImV4cCI6MjA5NTQzNjI0OH0.NUzQSBtq4qAveVhqyoZdapSvy-HD0hdlQ0i9eT4eays";
 
   const handleLogin = async (e: any) => {
