@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+// MASUKKAN KUNCI SUPABASE LANGSUNG DI SINI AGAR VERCEL PASTI BISA MEMBACA DATABASE
+const supabaseUrl = "KOPAS_URL_SUPABASE_MU_DISINI";
+const supabaseAnonKey = "KOPAS_ANON_KEY_MU_DISINI";
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
@@ -25,11 +27,11 @@ export default function Home() {
     }
 
     try {
+      // Mengambil data nasabah dari supabase
       const { data: nasabah, error } = await supabase
         .from("nasabah")
         .select("*")
-        .eq("username", usernameInput)
-        .slice(0, 1);
+        .eq("username", usernameInput);
 
       if (error || !nasabah || nasabah.length === 0) {
         setPesanError("Username tidak ditemukan!");
@@ -38,6 +40,7 @@ export default function Home() {
         if (user.password !== passwordInput) {
           setPesanError("Kata sandi yang Anda masukkan salah!");
         } else {
+          // POP UP BERHASIL LOGIN
           alert(`Selamat Datang, ${user.nama}!\nTotal Tabungan Anda: Rp ${Number(user.tabungan).toLocaleString()}`);
         }
       }
